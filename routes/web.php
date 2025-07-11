@@ -5,10 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\QueueController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\QueueTakeController;
-
-Route::get('/', function () {
-    return view('welcome');
-});
+use App\Http\Controllers\QueuePublicController;
 
 // Guest (belum login)
 Route::middleware('guest')->group(function () {
@@ -36,4 +33,7 @@ Route::middleware('guest')->group(function () {
     Route::get('/queue/take', [QueueTakeController::class, 'index'])->name('queue.take');
     Route::get('/queue/next-number', [QueueTakeController::class, 'nextNumber'])->name('queue.next-number');
     Route::post('/queue/take/store', [QueueTakeController::class, 'store'])->name('queue.take.store');
+
+    Route::get('/', [QueuePublicController::class, 'index'])->name('queue.public.index');
+    Route::get('/queue/live-info', [QueuePublicController::class, 'liveInfo']);
 });
