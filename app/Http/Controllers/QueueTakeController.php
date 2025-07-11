@@ -17,7 +17,10 @@ class QueueTakeController extends Controller
 
     public function store(Request $request)
     {
-        $last = Queue::orderBy('number', 'desc')->first();
+        $last = Queue::whereDate('created_at', today())
+            ->orderBy('number', 'desc')
+            ->first();
+
         $nextNumber = $last ? $last->number + 1 : 1;
 
         $queue = Queue::create([
@@ -33,7 +36,10 @@ class QueueTakeController extends Controller
 
     public function nextNumber()
     {
-        $last = Queue::orderBy('number', 'desc')->first();
+        $last = Queue::whereDate('created_at', today())
+            ->orderBy('number', 'desc')
+            ->first();
+
         $next = $last ? $last->number + 1 : 1;
 
         return response()->json(['next' => $next]);

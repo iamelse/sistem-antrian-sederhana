@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Queue;
+use Carbon\Carbon;
 use Illuminate\View\View;
 
 class QueueController extends Controller
@@ -15,16 +16,24 @@ class QueueController extends Controller
 
     public function list()
     {
-        return response()->json(Queue::orderBy('number')->get());
+        return response()->json(
+            Queue::whereDate('created_at', Carbon::today())
+                ->orderBy('number')
+                ->get()
+        );
     }
 
     public function call()
     {
-        // Tandai yg sedang dipanggil sebagai done
-        Queue::where('status', 'called')->update(['status' => 'done']);
+        Queue::whereDate('created_at', today())
+            ->where('status', 'called')
+            ->update(['status' => 'done']);
 
-        // Panggil antrian waiting pertama
-        $next = Queue::where('status', 'waiting')->orderBy('number')->first();
+        $next = Queue::whereDate('created_at', today())
+            ->where('status', 'waiting')
+            ->orderBy('number')
+            ->first();
+
         if ($next) {
             $next->update(['status' => 'called']);
             return response()->json(['success' => true, 'current' => $next->number]);
@@ -35,21 +44,26 @@ class QueueController extends Controller
 
     public function next()
     {
-        // Tandai antrian yang sedang dipanggil sebagai done
         Queue::where('status', 'called')->update(['status' => 'done']);
 
-        // Otomatis panggil antrian berikutnya
         return $this->call();
     }
 
     public function prev()
     {
-        $current = Queue::where('status', 'called')->first();
+        $current = Queue::whereDate('created_at', today())
+            ->where('status', 'called')
+            ->first();
+
         if ($current) {
             $current->update(['status' => 'waiting']);
         }
 
-        $lastDone = Queue::where('status', 'done')->orderByDesc('updated_at')->first();
+        $lastDone = Queue::whereDate('created_at', today())
+            ->where('status', 'done')
+            ->orderByDesc('updated_at')
+            ->first();
+
         if ($lastDone) {
             $lastDone->update(['status' => 'called']);
             return response()->json(['success' => true]);

@@ -17,8 +17,15 @@ class QueuePublicController extends Controller
 
     public function liveInfo()
     {
-        $current = Queue::where('status', 'called')->latest()->first();
-        $next = Queue::where('status', 'waiting')->orderBy('number')->first();
+        $current = Queue::whereDate('created_at', today())
+            ->where('status', 'called')
+            ->latest()
+            ->first();
+
+        $next = Queue::whereDate('created_at', today())
+            ->where('status', 'waiting')
+            ->orderBy('number')
+            ->first();
 
         return response()->json([
             'current' => $current ? $current->number : null,
