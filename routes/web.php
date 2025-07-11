@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\QueueController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\QueueTakeController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -29,4 +30,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/admin/queue/skip', [QueueController::class, 'skip'])->name('queue.skip');
     Route::post('/admin/queue/next', [QueueController::class, 'next'])->name('queue.next');
     Route::post('/admin/queue/prev', [QueueController::class, 'prev'])->name('queue.prev');
+});
+
+Route::middleware('guest')->group(function () {
+    Route::get('/queue/take', [QueueTakeController::class, 'index'])->name('queue.take');
+    Route::get('/queue/next-number', [QueueTakeController::class, 'nextNumber'])->name('queue.next-number');
+    Route::post('/queue/take/store', [QueueTakeController::class, 'store'])->name('queue.take.store');
 });
